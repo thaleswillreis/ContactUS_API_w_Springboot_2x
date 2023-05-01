@@ -4,24 +4,21 @@ import java.io.Serializable;
 
 import com.will.domain.User;
 
-public class UserDTO implements Serializable {
+public class AuthorDTO implements Serializable {
+
 	private static final long serialVersionUID = 1L;
-	
+
 	private String id;
 	private String firstName;
 	private String lastName;
-	private String email;
-	private String phone;
-	
-	public UserDTO () {
+
+	public AuthorDTO() {
 	}
-	
-	public UserDTO (User obj) {
+
+	public AuthorDTO(User obj) {
 		id = obj.getId();
 		firstName = obj.getFirstName();
 		lastName = obj.getLastName();
-		email = obj.getEmail();
-		phone = obj.getPhone();
 	}
 
 	public String getId() {
@@ -46,21 +43,5 @@ public class UserDTO implements Serializable {
 
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public String getPhone() {
-		return phone;
-	}
-
-	public void setPhone(String phone) {
-		this.phone = phone;
 	}
 }

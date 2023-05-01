@@ -1,9 +1,12 @@
 package com.will.domain;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "user")
@@ -16,6 +19,9 @@ public class User implements Serializable{
 	private String lastName;
 	private String email;
 	private String phone;
+	
+	@DBRef(lazy = true)
+	private List<Contact> contact = new ArrayList<>();
 	
 	public User() {
 	}
@@ -69,9 +75,17 @@ public class User implements Serializable{
 		this.phone = phone;
 	}
 
+	public List<Contact> getContact() {
+		return contact;
+	}
+
+	public void setContact(List<Contact> contact) {
+		this.contact = contact;
+	}
+
 	@Override
 	public int hashCode() {
-		return Objects.hash(email, id);
+		return Objects.hash(id);
 	}
 
 	@Override
@@ -83,7 +97,8 @@ public class User implements Serializable{
 		if (getClass() != obj.getClass())
 			return false;
 		User other = (User) obj;
-		return Objects.equals(email, other.email) && Objects.equals(id, other.id);
+		return Objects.equals(id, other.id);
 	}
+
 }
 
