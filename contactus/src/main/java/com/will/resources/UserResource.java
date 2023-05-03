@@ -66,7 +66,7 @@ public class UserResource {
 	}
 	
 	@GetMapping({"/{id}/contacts", "/{id}/contacts/"})
-	public ResponseEntity<List<Contact>> findContacts(@PathVariable String id) {
+	public ResponseEntity<List<Contact>> findUserContacts(@PathVariable String id) {
 		User obj = service.findById(id);
 		return ResponseEntity.ok().body(obj.getContact());
 	}
