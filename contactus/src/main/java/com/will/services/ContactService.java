@@ -30,7 +30,7 @@ public class ContactService {
 		return repo.findBySubject(text);
 	}
 	
-	public List<Contact> searchTextInContact(String text, Date minDate, Date maxDate) {
+	public List<Contact> searchTextInContactOrByDate(String text, Date minDate, Date maxDate) {
 		maxDate = new Date(maxDate.getTime() + 24 * 60 * 60 * 1000);
 		return repo.searchTextInContactByDate(text, minDate, maxDate);
 	}

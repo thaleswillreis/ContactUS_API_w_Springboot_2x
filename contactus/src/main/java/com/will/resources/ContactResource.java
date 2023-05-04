@@ -49,7 +49,7 @@ public class ContactResource {
 		text = URL.decodeParam(text);
 		Date min = URL.convertDate(minDate, new Date(0L));
 		Date max = URL.convertDate(maxDate, new Date());
-		List<Contact> list = service.searchTextInContact(text, min, max);
+		List<Contact> list = service.searchTextInContactOrByDate(text, min, max);
 		return ResponseEntity.ok().body(list);
 	}
 

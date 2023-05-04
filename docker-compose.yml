@@ -1,0 +1,11 @@
+version: "3.9"
+services:
+
+  mongodb:
+    image: mongo:latest
+    container_name: "mongodb"
+    environment:
+      - AUTH=no
+    ports:
+      - 27017:27017
+      - 28017:28017
