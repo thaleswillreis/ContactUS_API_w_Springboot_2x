@@ -21,13 +21,16 @@ import com.will.domain.User;
 import com.will.dto.UserDTO;
 import com.will.services.UserService;
 
+import io.swagger.annotations.ApiOperation;
+
 @RestController
-@RequestMapping({"/users", "/users/"})
+@RequestMapping("/users")
 public class UserResource {
 	
 	@Autowired
 	private UserService service;
 	
+	@ApiOperation(value="Busca todos os usuários")
 	@GetMapping
 	public ResponseEntity<List<UserDTO>> findAll() {
 		List<User> list = service.findAll();
@@ -36,12 +39,14 @@ public class UserResource {
 		return ResponseEntity.ok().body(listDto);
 	}
 	
-	@GetMapping({"/{id}", "/{id}/"})
+	@ApiOperation(value="Busca um usuário pelo Id")
+	@GetMapping("/{id}")
 	public ResponseEntity<UserDTO> findById(@PathVariable String id) {
 		User obj = service.findById(id);
 		return ResponseEntity.ok().body(new UserDTO(obj));
 	}
-		
+	
+	@ApiOperation(value="Insere um novo usuário")
 	@PostMapping
 	public ResponseEntity<Void> insert(@RequestBody UserDTO objDto) {
 		User obj = service.fromDTO(objDto);
@@ -51,13 +56,15 @@ public class UserResource {
 		return ResponseEntity.created(uri).build();
 	}
 	
-	@DeleteMapping({"/{id}", "/{id}/"})
+	@ApiOperation(value="Deleta um usuário")
+	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> delete(@PathVariable String id) {
 		service.delete(id);
 		return ResponseEntity.noContent().build();
 	}
 	
-	@PutMapping({"/{id}", "/{id}/"})
+	@ApiOperation(value="Atualiza os dados de um usuário")
+	@PutMapping("/{id}")
 	public ResponseEntity<Void> update(@RequestBody UserDTO objDto, @PathVariable String id) {
 		User obj = service.fromDTO(objDto);
 		obj.setId(id);
@@ -65,7 +72,8 @@ public class UserResource {
 		return ResponseEntity.noContent().build();
 	}
 	
-	@GetMapping({"/{id}/contacts", "/{id}/contacts/"})
+	@ApiOperation(value="Busca todos os contatos de um usuário")
+	@GetMapping("/{id}/contacts")
 	public ResponseEntity<List<Contact>> findUserContacts(@PathVariable String id) {
 		User obj = service.findById(id);
 		return ResponseEntity.ok().body(obj.getContact());

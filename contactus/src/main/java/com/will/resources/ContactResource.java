@@ -15,25 +15,30 @@ import com.will.domain.Contact;
 import com.will.resources.util.URL;
 import com.will.services.ContactService;
 
+import io.swagger.annotations.ApiOperation;
+
 @RestController
-@RequestMapping({ "/contacts", "/contacts/" })
+@RequestMapping("/contacts")
 public class ContactResource {
 
 	@Autowired
 	private ContactService service;
 
+	@ApiOperation(value="Busca todos os contatos")
 	@GetMapping
 	public ResponseEntity<List<Contact>> findAllContacts() {
 		List<Contact> list = service.findAll();
 		return ResponseEntity.ok().body(list);
 	}
 
-	@GetMapping({ "/{id}", "/{id}/" })
+	@ApiOperation(value="Busca um contato pelo Id")
+	@GetMapping("/{id}")
 	public ResponseEntity<Contact> findContactById(@PathVariable String id) {
 		Contact obj = service.findById(id);
 		return ResponseEntity.ok().body(obj);
 	}
 
+	@ApiOperation(value="Busca contatos pelo Título / Assunto")
 	@GetMapping("/subjectsearch")
 	public ResponseEntity<List<Contact>> findContactBySubject(@RequestParam(value = "text", defaultValue = "") String text) {
 		text = URL.decodeParam(text);
@@ -41,6 +46,7 @@ public class ContactResource {
 		return ResponseEntity.ok().body(list);
 	}
 
+	@ApiOperation(value="Busca todos os contatos contendo um determinado Termo e/ou em um Intervalo de Datas")
 	@GetMapping(value = "/textsearch")
 	public ResponseEntity<List<Contact>> searchTextByDate(
 			@RequestParam(value = "text", defaultValue = "") String text,
