@@ -28,9 +28,9 @@ public class UserDTO implements Serializable {
 	
 	private String phone;
 	
-	public UserDTO () {
+	public UserDTO() {
 	}
-	public UserDTO (User obj) {
+	public UserDTO(User obj) {
 		id = obj.getId();
 		firstName = obj.getFirstName();
 		lastName = obj.getLastName();

@@ -5,7 +5,6 @@ import java.io.Serializable;
 import com.will.domain.User;
 
 public class AuthorDTO implements Serializable {
-
 	private static final long serialVersionUID = 1L;
 
 	private String id;

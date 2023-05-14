@@ -9,9 +9,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.will.dto.AuthorDTO;
 
-@Document
+@Document(collection = "contact")
 public class Contact implements Serializable {
-	
 	private static final long serialVersionUID = 1L;
 	
 	@Id
