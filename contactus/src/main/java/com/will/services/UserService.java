@@ -1,9 +1,12 @@
 package com.will.services;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import com.will.domain.User;
@@ -17,8 +20,8 @@ public class UserService {
 	@Autowired
 	private UserRepository repo;
 
-	public List<User> findAll() {
-		return repo.findAll();
+	public Page<User> findAll(Pageable pageable) {
+		return repo.findAll(pageable);
 	}
 	
 	public User findById(String id) {
@@ -39,6 +42,11 @@ public class UserService {
 		User newObj = findById(obj.getId());
 		updateData(newObj, obj);
 		return repo.save(newObj);
+	}
+	
+	public Page<User> findPage(Integer page, Integer linesPerPage, String direction, String orderBy){
+		PageRequest pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);
+		return repo.findAll(pageRequest);
 	}
 	
 	private void updateData(User newObj, User obj) {
