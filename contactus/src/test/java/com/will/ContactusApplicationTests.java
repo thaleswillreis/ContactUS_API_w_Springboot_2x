@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 class ContactusApplicationTests {
 
 	@Test
-	void contextLoads() {
+	void main() {
+		ContactusApplication.main(new String[] {});
 	}
-
 }

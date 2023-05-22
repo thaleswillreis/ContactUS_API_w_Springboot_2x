@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -82,7 +84,7 @@ public class ContactResource {
 
 	@ApiOperation(value="Busca todos os contatos contendo um determinado Termo e/ou em um Intervalo de Datas")
 	@GetMapping(value = "/textsearch")
-	public ResponseEntity<List<ContactDTO>> searchTextByDate(
+	public ResponseEntity<List<ContactDTO>> searchTextByDate( 
 			@RequestParam(value = "text", defaultValue = "") String text,
 			@RequestParam(value = "minDate", defaultValue = "") String minDate,
 			@RequestParam(value = "maxDate", defaultValue = "") String maxDate) {
@@ -97,7 +99,7 @@ public class ContactResource {
 	
 	@ApiOperation(value="Insere um novo contato")
 	@PostMapping
-	public ResponseEntity<Void> insert(@RequestBody ContactDTO objDto){
+	public ResponseEntity<Void> insert(@Valid @RequestBody ContactDTO objDto){
 		Contact obj = service.fromDTO(objDto);
 		obj = service.insert(obj);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
@@ -114,7 +116,7 @@ public class ContactResource {
 	
 	@ApiOperation(value="Atualiza os dados de um contato")
 	@PutMapping("/{id}")
-	public ResponseEntity<Void> update(@RequestBody ContactDTO objDto, @PathVariable String id) {
+	public ResponseEntity<Void> update(@Valid @RequestBody ContactDTO objDto, @PathVariable String id) {
 		Contact obj = service.fromDTO(objDto);
 		obj.setId(id);
 		obj = service.update(obj);

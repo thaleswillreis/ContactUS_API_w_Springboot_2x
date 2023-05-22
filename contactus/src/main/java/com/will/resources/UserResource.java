@@ -3,6 +3,8 @@ package com.will.resources;
 import java.net.URI;
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -69,7 +71,7 @@ public class UserResource {
 	
 	@ApiOperation(value="Insere um novo usuário")
 	@PostMapping
-	public ResponseEntity<Void> insert(@RequestBody UserDTO objDto) {
+	public ResponseEntity<Void> insert(@Valid @RequestBody UserDTO objDto) {
 		User obj = service.fromDTO(objDto);
 		obj = service.insert(obj);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
@@ -86,7 +88,7 @@ public class UserResource {
 	
 	@ApiOperation(value="Atualiza os dados de um usuário")
 	@PutMapping("/{id}")
-	public ResponseEntity<Void> update(@RequestBody UserDTO objDto, @PathVariable String id) {
+	public ResponseEntity<Void> update(@Valid @RequestBody UserDTO objDto, @PathVariable String id) {
 		User obj = service.fromDTO(objDto);
 		obj.setId(id);
 		obj = service.update(obj);
