@@ -19,7 +19,7 @@ public class UserService {
 
 	@Autowired
 	private UserRepository repo;
-
+	
 	public Page<User> findAll(Pageable pageable) {
 		return repo.findAll(pageable);
 	}

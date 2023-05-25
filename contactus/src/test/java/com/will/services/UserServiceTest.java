@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +18,9 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import com.will.domain.User;
 import com.will.dto.UserDTO;
@@ -45,6 +50,8 @@ class UserServiceTest {
 	private UserDTO userDto;
 	private Optional<User> optional;
 	private Page<User> page;
+	private Pageable pageable;
+	private List<User> userList;
 
 	@BeforeEach
 	void setup() {
@@ -54,22 +61,30 @@ class UserServiceTest {
 		user = new User(ID, FISTNAME, LASTNAME, EMAIL, PHONE);
 		userDto = new UserDTO(user);
 		optional = Optional.of(new User(ID, FISTNAME, LASTNAME, EMAIL, PHONE));
-
+		pageable = PageRequest.of(0, 10);
+		
 	}
 
+			
 	@Test
 	@DisplayName("Buscar todos os usuários")
-	void whenFindAllUsersThenReturnAllUser() {
+	void whenFindAllUsersThenReturnAllUsers() {
 		
-		// arrange
+		userList = new ArrayList<>();
+		userList.add(user);
+        page = new PageImpl<>(userList, pageable, userList.size());
+        
+        when(userRepository.findAll(pageable)).thenReturn(page);
+        
+        Page<User> response = userService.findAll(pageable);
 
-		// action
-
-		// assert
-
-		assertEquals(true, true);
-
+		assertNotNull(response);
+		assertEquals(userList, response.getContent());
+        assertEquals(userList.size(), response.getTotalElements());
+		assertEquals(10, page.getSize());
+		assertEquals(0, page.getNumber());
 	}
+	 		
 
 	@Test
 	@DisplayName("Retorna um User ao buscar um usuário pelo Id")
