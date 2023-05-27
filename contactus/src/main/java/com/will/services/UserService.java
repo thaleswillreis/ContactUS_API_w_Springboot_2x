@@ -1,11 +1,11 @@
 package com.will.services;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
@@ -20,8 +20,8 @@ public class UserService {
 	@Autowired
 	private UserRepository repo;
 	
-	public Page<User> findAll(Pageable pageable) {
-		return repo.findAll(pageable);
+	public List<User> findAll() {
+		return repo.findAll();
 	}
 	
 	public User findById(String id) {
@@ -30,6 +30,7 @@ public class UserService {
 	}
 	
 	public User insert(User obj) {
+		obj.setId(null);
 		return repo.insert(obj);
 	}
 	

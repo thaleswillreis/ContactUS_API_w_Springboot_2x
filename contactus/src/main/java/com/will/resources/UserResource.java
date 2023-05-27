@@ -2,12 +2,12 @@ package com.will.resources;
 
 import java.net.URI;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,9 +36,10 @@ public class UserResource {
 	
 	@ApiOperation(value="Busca todos os usuários")
 	@GetMapping
-	public ResponseEntity<Page<UserDTO>> findAll(Pageable pageable) {
-		Page<User> list = service.findAll(pageable);
-		Page<UserDTO> listDto = list.map(obj -> new UserDTO(obj));
+	public ResponseEntity<List<UserDTO>> findAll() {
+		List<User> list = service.findAll();
+		List<UserDTO> listDto = list.stream().map(obj -> new UserDTO(obj))
+				.collect(Collectors.toList());
 		return ResponseEntity.ok().body(listDto);
 	}
 	

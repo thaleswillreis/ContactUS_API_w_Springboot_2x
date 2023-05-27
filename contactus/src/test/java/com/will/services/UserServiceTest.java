@@ -3,6 +3,10 @@ package com.will.services;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -12,6 +16,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -19,7 +24,6 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import com.will.domain.User;
@@ -49,8 +53,7 @@ class UserServiceTest {
 	private User user;
 	private UserDTO userDto;
 	private Optional<User> optional;
-	private Page<User> page;
-	private Pageable pageable;
+	private Page<User> userPage;
 	private List<User> userList;
 
 	@BeforeEach
@@ -61,8 +64,6 @@ class UserServiceTest {
 		user = new User(ID, FISTNAME, LASTNAME, EMAIL, PHONE);
 		userDto = new UserDTO(user);
 		optional = Optional.of(new User(ID, FISTNAME, LASTNAME, EMAIL, PHONE));
-		pageable = PageRequest.of(0, 10);
-		
 	}
 
 			
@@ -72,17 +73,19 @@ class UserServiceTest {
 		
 		userList = new ArrayList<>();
 		userList.add(user);
-        page = new PageImpl<>(userList, pageable, userList.size());
+        when(userRepository.findAll()).thenReturn(userList);
         
-        when(userRepository.findAll(pageable)).thenReturn(page);
-        
-        Page<User> response = userService.findAll(pageable);
+        List<User> response = userService.findAll();
 
-		assertNotNull(response);
-		assertEquals(userList, response.getContent());
-        assertEquals(userList.size(), response.getTotalElements());
-		assertEquals(10, page.getSize());
-		assertEquals(0, page.getNumber());
+        verify(userRepository, times(1)).findAll();
+        assertEquals(userList, response);
+		assertEquals(userList.getClass(), response.getClass());
+		assertEquals(ID, response.get(0).getId());
+		assertEquals(FISTNAME, response.get(0).getFirstName());
+		assertEquals(LASTNAME, response.get(0).getLastName());
+		assertEquals(EMAIL, response.get(0).getEmail());
+		assertEquals(PHONE, response.get(0).getPhone());
+		
 	}
 	 		
 
@@ -96,13 +99,13 @@ class UserServiceTest {
 
 		assertNotNull(response);
 		assertEquals(User.class, response.getClass());
-		
 		assertEquals(ID, response.getId());
 		assertEquals(FISTNAME, response.getFirstName());
 		assertEquals(LASTNAME, response.getLastName());
 		assertEquals(EMAIL, response.getEmail());
 		assertEquals(PHONE, response.getPhone());
 	}
+	
 	
 	@Test
 	@DisplayName("Retorna uma excessão ao falhar em buscar um usuário pelo Id")
@@ -118,6 +121,7 @@ class UserServiceTest {
 		}
 	}
 	
+	
 	@Test
 	@DisplayName("Retorna uma excessão ao buscar um usuário pelo Id inválido")
 	void returnsAnExceptionWhenFindAUserByInvalidId() {
@@ -126,12 +130,14 @@ class UserServiceTest {
 		assertThrows(ObjectNotFoundException.class, () -> userService.findById(null));
 		assertThrows(ObjectNotFoundException.class, () -> userService.findById(""));
 		assertThrows(ObjectNotFoundException.class, () -> userService.findById("B"));
+		assertThrows(ObjectNotFoundException.class, () -> userService.findById("2"));
 		assertThrows(ObjectNotFoundException.class, () -> userService.findById(FISTNAME));
 		assertThrows(ObjectNotFoundException.class, () -> userService.findById(LASTNAME));
 		assertThrows(ObjectNotFoundException.class, () -> userService.findById(EMAIL));
 		assertThrows(ObjectNotFoundException.class, () -> userService.findById(PHONE));
 	}
 
+	
 	@Test
 	void testInsert() {
 
@@ -144,51 +150,79 @@ class UserServiceTest {
 		assertEquals(true, true);
 	}
 
+	
 	@Test
 	void testDelete() {
 
-		// arrange
+		userList = new ArrayList<>();
+		userList.add(user);
+		when(userRepository.findById(ID)).thenReturn(Optional.of(user));
 
-		// action
+		userService.delete(ID);
 
-		// assert
-
-		assertEquals(true, true);
+		verify(userRepository, times(1)).findById(ID);
+        verify(userRepository, times(1)).deleteById(ID);
+        InOrder inOrder = inOrder(userRepository);
+        inOrder.verify(userRepository).findById(ID);
+        inOrder.verify(userRepository).deleteById(ID);
 	}
 
+	
 	@Test
 	void testUpdate() {
-
-		// arrange
-
-		// action
-
-		// assert
-
-		assertEquals(true, true);
+		
+		when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+		when(userRepository.save(any(User.class))).thenReturn(user);
+		
+		User updatedUser = userService.update(user);
+		
+		verify(userRepository, times(1)).findById(user.getId());
+        verify(userRepository, times(1)).save(any(User.class));
+        assertEquals(user, updatedUser);
+		
 	}
 
+	
 	@Test
 	void testFindPage() {
+		
+		Integer page = 0;
+        Integer linesPerPage = 24;
+        String direction = "ASC";
+        String orderBy = "firstName";
 
-		// arrange
+		userList = new ArrayList<>();
+		userList.add(user);
+		userPage = new PageImpl<>(userList);
+		when(userRepository.findAll(any(Pageable.class))).thenReturn(userPage);
+        
+		Page<User> response = userService.findPage(page, linesPerPage, direction, orderBy);
 
-		// action
-
-		// assert
-
-		assertEquals(true, true);
+		verify(userRepository, times(1)).findAll(any(Pageable.class));
+		assertEquals(userPage, response);
+		assertEquals(userList, response.getContent());
+        assertEquals(userList.size(), response.getTotalElements());
+		assertEquals(1, userPage.getSize());
+		assertEquals(0, userPage.getNumber());
+		assertEquals(ID, response.getContent().get(0).getId());
+		assertEquals(FISTNAME, response.getContent().get(0).getFirstName());
+		assertEquals(LASTNAME, response.getContent().get(0).getLastName());
+		assertEquals(EMAIL, response.getContent().get(0).getEmail());
+		assertEquals(PHONE, response.getContent().get(0).getPhone());
 	}
+
 
 	@Test
 	void testFromDTO() {
 
-		// arrange
+		userDto = new UserDTO(user);
 
-		// action
+        User user = userService.fromDTO(userDto);
 
-		// assert
-
-		assertEquals(true, true);
+        assertEquals(userDto.getId(), user.getId());
+        assertEquals(userDto.getFirstName(), user.getFirstName());
+        assertEquals(userDto.getLastName(), user.getLastName());
+        assertEquals(userDto.getEmail(), user.getEmail());
+        assertEquals(userDto.getPhone(), user.getPhone());
 	}
 }
