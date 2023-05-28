@@ -19,50 +19,46 @@ public class UserService {
 
 	@Autowired
 	private UserRepository repo;
-	
+
 	public List<User> findAll() {
 		return repo.findAll();
 	}
-	
+
 	public User findById(String id) {
 		Optional<User> obj = repo.findById(id);
 		return obj.orElseThrow(() -> new ObjectNotFoundException("Objeto não encontrado"));
 	}
-	
+
 	public User insert(User obj) {
 		obj.setId(null);
 		return repo.insert(obj);
 	}
-	
+
 	public void delete(String id) {
 		findById(id);
 		repo.deleteById(id);
 	}
-	
+
 	public User update(User obj) {
 		User newObj = findById(obj.getId());
 		updateData(newObj, obj);
 		return repo.save(newObj);
 	}
-	
-	public Page<User> findPage(Integer page, Integer linesPerPage, String direction, String orderBy){
+
+	public Page<User> findPage(Integer page, Integer linesPerPage, String direction, String orderBy) {
 		PageRequest pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);
 		return repo.findAll(pageRequest);
 	}
-	
+
 	private void updateData(User newObj, User obj) {
 		newObj.setFirstName(obj.getFirstName());
 		newObj.setLastName(obj.getLastName());
 		newObj.setEmail(obj.getEmail());
 		newObj.setPhone(obj.getPhone());
 	}
-	
+
 	public User fromDTO(UserDTO objDto) {
-		return new User(
-				objDto.getId(), 
-				objDto.getFirstName(), 
-				objDto.getLastName(), 
-				objDto.getEmail(), 
+		return new User(objDto.getId(), objDto.getFirstName(), objDto.getLastName(), objDto.getEmail(),
 				objDto.getPhone());
 	}
 }

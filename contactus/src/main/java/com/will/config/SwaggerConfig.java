@@ -27,7 +27,7 @@ public class SwaggerConfig {
 
 	private final ResponseMessage msg201ok = customMessage();
 	private final ResponseMessage msg204put = simpleMessage(204, "Atualização ok");
-	private final ResponseMessage msg204del = simpleMessage(204, "Deleção ok");
+	private final ResponseMessage msg204del = simpleMessage(204, "Deleção ok");	
 	private final ResponseMessage erro403 = simpleMessage(403, "Não autorizado");
 	private final ResponseMessage erro404 = simpleMessage(404, "Não encontrado");
 	private final ResponseMessage erro500 = simpleMessage(500, "Erro inesperado");

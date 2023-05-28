@@ -2,8 +2,10 @@ package com.will.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -68,7 +70,7 @@ class UserServiceTest {
 
 			
 	@Test
-	@DisplayName("Buscar todos os usuários")
+	@DisplayName("Retorna todos os usuários")
 	void whenFindAllUsersThenReturnAllUsers() {
 		
 		userList = new ArrayList<>();
@@ -109,7 +111,7 @@ class UserServiceTest {
 	
 	@Test
 	@DisplayName("Retorna uma excessão ao falhar em buscar um usuário pelo Id")
-	void returnsAnExceptionWhenFindAUserById() {
+	void whenFindAUserByIdReturnsAnException() {
 		
 		when(userRepository.findById(Mockito.anyString())).thenThrow(new ObjectNotFoundException("Objeto não encontrado"));
 		
@@ -124,7 +126,7 @@ class UserServiceTest {
 	
 	@Test
 	@DisplayName("Retorna uma excessão ao buscar um usuário pelo Id inválido")
-	void returnsAnExceptionWhenFindAUserByInvalidId() {
+	void whenFindAUserByInvalidIdReturnsAnException() {
 		when(userRepository.findById(ID)).thenReturn(optional);
 
 		assertThrows(ObjectNotFoundException.class, () -> userService.findById(null));
@@ -139,20 +141,30 @@ class UserServiceTest {
 
 	
 	@Test
-	void testInsert() {
+	@DisplayName("Insere um novo usuário com sucesso")
+	void whenInsertANewUserThenReturnSuccess() {
 
-		// arrange
+		when(userRepository.insert(user)).thenReturn(user);
 
-		// action
 
-		// assert
+        User response = userService.insert(user);
 
-		assertEquals(true, true);
+
+        assertNotNull(response);
+        assertNull(response.getId());
+        assertEquals(user, response);
+        assertEquals(user.getFirstName(), response.getFirstName());
+        assertEquals(user.getLastName(), response.getLastName());
+        assertEquals(user.getEmail(), response.getEmail());
+        assertEquals(user.getPhone(), response.getPhone());
+        verify(userRepository, times(1)).insert(user);
+        verify(userRepository).insert(eq(user));
 	}
 
 	
 	@Test
-	void testDelete() {
+	@DisplayName("Deleta um usuário com sucesso")
+	void whenDeleteAUserThenReturnSuccess() {
 
 		userList = new ArrayList<>();
 		userList.add(user);
@@ -169,7 +181,8 @@ class UserServiceTest {
 
 	
 	@Test
-	void testUpdate() {
+	@DisplayName("Atualiza um usuário existente com sucesso")
+	void whenUpdateAUserThenReturnSuccess() {
 		
 		when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
 		when(userRepository.save(any(User.class))).thenReturn(user);
@@ -184,7 +197,8 @@ class UserServiceTest {
 
 	
 	@Test
-	void testFindPage() {
+	@DisplayName("Retorna todos os usuários com paginação personalizada")
+	void whenFindAllUsersThenReturnPaginationWithAllUsers() {
 		
 		Integer page = 0;
         Integer linesPerPage = 24;
@@ -213,7 +227,8 @@ class UserServiceTest {
 
 
 	@Test
-	void testFromDTO() {
+	@DisplayName("Retorna um objeto do tipo UserDTO")
+	void whenFindAUserObjectReturnsAUserDTO() {
 
 		userDto = new UserDTO(user);
 
