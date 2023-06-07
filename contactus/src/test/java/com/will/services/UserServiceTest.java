@@ -23,7 +23,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -33,7 +32,7 @@ import com.will.dto.UserDTO;
 import com.will.repository.UserRepository;
 import com.will.services.exception.ObjectNotFoundException;
 
-@SpringBootTest
+
 class UserServiceTest {
 
 	private static final String PHONE = "+5599992015432";
