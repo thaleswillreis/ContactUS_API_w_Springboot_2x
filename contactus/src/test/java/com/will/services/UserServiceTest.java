@@ -67,7 +67,6 @@ class UserServiceTest {
 		optional = Optional.of(new User(ID, FISTNAME, LASTNAME, EMAIL, PHONE));
 	}
 
-			
 	@Test
 	@DisplayName("Retorna todos os usuários")
 	void whenFindAllUsersThenReturnAllUsers() {
@@ -89,7 +88,6 @@ class UserServiceTest {
 		
 	}
 	 		
-
 	@Test
 	@DisplayName("Retorna um User ao buscar um usuário pelo Id")
 	void whenFindAUserByIdThenReturnThatUser() {
@@ -122,7 +120,6 @@ class UserServiceTest {
 		}
 	}
 	
-	
 	@Test
 	@DisplayName("Retorna uma excessão ao buscar um usuário pelo Id inválido")
 	void whenFindAUserByInvalidIdReturnsAnException() {
@@ -138,16 +135,13 @@ class UserServiceTest {
 		assertThrows(ObjectNotFoundException.class, () -> userService.findById(PHONE));
 	}
 
-	
 	@Test
 	@DisplayName("Insere um novo usuário com sucesso")
 	void whenInsertANewUserThenReturnSuccess() {
 
 		when(userRepository.insert(user)).thenReturn(user);
 
-
         User response = userService.insert(user);
-
 
         assertNotNull(response);
         assertNull(response.getId());
@@ -160,7 +154,6 @@ class UserServiceTest {
         verify(userRepository).insert(eq(user));
 	}
 
-	
 	@Test
 	@DisplayName("Deleta um usuário com sucesso")
 	void whenDeleteAUserThenReturnSuccess() {
@@ -178,7 +171,6 @@ class UserServiceTest {
         inOrder.verify(userRepository).deleteById(ID);
 	}
 
-	
 	@Test
 	@DisplayName("Atualiza um usuário existente com sucesso")
 	void whenUpdateAUserThenReturnSuccess() {
@@ -194,7 +186,6 @@ class UserServiceTest {
 		
 	}
 
-	
 	@Test
 	@DisplayName("Retorna todos os usuários com paginação personalizada")
 	void whenFindAllUsersThenReturnPaginationWithAllUsers() {
@@ -223,7 +214,6 @@ class UserServiceTest {
 		assertEquals(EMAIL, response.getContent().get(0).getEmail());
 		assertEquals(PHONE, response.getContent().get(0).getPhone());
 	}
-
 
 	@Test
 	@DisplayName("Retorna um objeto do tipo UserDTO")

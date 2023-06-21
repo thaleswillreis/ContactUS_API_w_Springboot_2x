@@ -36,6 +36,7 @@ public class ContactService {
 	}
 	
 	public Contact insert(Contact obj) {
+		obj.setId(null);
 		return repo.insert(obj);
 	}
 	

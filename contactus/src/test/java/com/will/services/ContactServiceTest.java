@@ -1,22 +1,30 @@
 package com.will.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -84,14 +92,11 @@ class ContactServiceTest {
 	}
 
 	@Test
-	@DisplayName("Find All Wit Pagination")
-	void whenFindAllContactsThenReturnAllContactsWitPagination() {
+	@DisplayName("Find All Contacts With Pagination")
+	void whenFindAllContactsThenReturnAllContactsWithPagination() {
 
-//		contactList =  new ArrayList<>();
 		contactList = Arrays.asList(contato1, contato2);
-//		contactPage = mock(Page.class);
 		contactPage = new PageImpl<>(contactList);
-//		when(contactPage.toList()).thenReturn(contactList);
 		when(contactRepository.findAll(any(Pageable.class))).thenReturn(contactPage);
 
 		Page<Contact> response = contactService.findAll(mock(Pageable.class));
@@ -112,7 +117,7 @@ class ContactServiceTest {
 	}
 
 	@Test
-	@DisplayName("Find All Without Pagination")
+	@DisplayName("Find All Contacts Without Pagination")
 	void whenFindAllContactsThenReturnAllContactsWithoutPagination() {
 		contactList = Arrays.asList(contato1, contato2);
 		when(contactRepository.findAll()).thenReturn(contactList);
@@ -135,15 +140,15 @@ class ContactServiceTest {
 	}
 
 	@Test
-	@DisplayName("Find By Id")
-	void whenFindAContactByIdThenReturnThatContact() {
+	@DisplayName("Find A Contact By Id")
+	void whenFindAContactByIdThenReturnThatContactWithSuccess() {
 		optional = Optional.of(contato1);
 		when(contactRepository.findById(ID1)).thenReturn(optional);
 
 		Contact response = contactService.findById(ID1);
 
 		verify(contactRepository, times(1)).findById(ID1);
-		assertEquals(contato1, response);		
+		assertEquals(contato1, response);
 		assertEquals(ID1, response.getId());
 		assertEquals(DATE1, sdf.format(response.getDate()));
 		assertEquals(SUBJECT1, response.getSubject());
@@ -166,45 +171,151 @@ class ContactServiceTest {
 	}
 
 	@Test
-	@DisplayName("Insert")
-	void testInsert() {
-		fail("Not yet implemented");
+	@DisplayName("Insert A Contact")
+	void whenInsertAContactThenReturnSuccess() {
+		when(contactRepository.insert(contato2)).thenReturn(contato2);
+
+		Contact response = contactService.insert(contato2);
+
+		assertNotNull(response);
+        assertNull(response.getId());
+		assertEquals(contato2, response);
+		assertEquals(contato2.getId(), response.getId());
+        assertEquals(contato2.getDate(), response.getDate());
+        assertEquals(contato2.getSubject(), response.getSubject());
+        assertEquals(contato2.getBody(), response.getBody());
+        assertEquals(contato2.getAuthor(), response.getAuthor());
+		verify(contactRepository, times(1)).insert(contato2);
+		verify(contactRepository).insert(eq(contato2));
 	}
 
 	@Test
-	@DisplayName("Delete")
-	void testDelete() {
-		fail("Not yet implemented");
+	@DisplayName("Delete A Contact By Id")
+	void whenDeleteAContactByIdThenReturnSuccess() {
+		optional = Optional.of(contato1);
+		when(contactRepository.findById(ID1)).thenReturn(optional);
+
+		contactService.delete(ID1);
+
+		verify(contactRepository, times(1)).findById(ID1);
+		verify(contactRepository, times(1)).deleteById(ID1);
+		InOrder inOrder = inOrder(contactRepository);
+		inOrder.verify(contactRepository).findById(ID1);
+		inOrder.verify(contactRepository).deleteById(ID1);
 	}
 
 	@Test
-	@DisplayName("Update")
-	void testUpdate() {
-		fail("Not yet implemented");
+	@DisplayName("Delete A Contact By Id Not Found")
+	void whenDeleteAContactByIdThenReturnAException() {
+		optional = Optional.empty();
+		when(contactRepository.findById(ID1)).thenReturn(optional);
+
+		assertThrows(ObjectNotFoundException.class, () -> {
+			contactService.delete(ID1);
+		});
+
+		verify(contactRepository, times(1)).findById(ID1);
+		verify(contactRepository, never()).deleteById(anyString());
 	}
 
 	@Test
-	@DisplayName("Find By Subject")
-	void testFindBySubject() {
-		fail("Not yet implemented");
+	@DisplayName("Update A Contact By Id")
+	void whenUpdateAContactByIdThenReturnSuccess() {
+		when(contactRepository.findById(ID2)).thenReturn(Optional.of(contato2));
+		when(contactRepository.save(contato2)).thenReturn(contato2);
+
+		Contact updatedContact = contactService.update(contato2);
+
+		verify(contactRepository).findById(ID2);
+		verify(contactRepository).save(contato2);
+		assertEquals(contato2, updatedContact);
+	}
+
+	@Test
+	@DisplayName("Find A Contact By Subject")
+	void whenFindAContactBySubjectThenReturnThatContactsWithSuccess() {
+
+		contactList = Arrays.asList(contato1);
+		when(contactRepository.findBySubject(SUBJECT1)).thenReturn(contactList);
+
+		List<Contact> response = contactService.findBySubject(SUBJECT1);
+
+		verify(contactRepository).findBySubject(SUBJECT1);
+		assertEquals(contactList, response);
+		assertEquals(ID1, response.get(0).getId());
+		assertEquals(DATE1, sdf.format(response.get(0).getDate()));
+		assertEquals(SUBJECT1, response.get(0).getSubject());
+		assertEquals(BODY1, response.get(0).getBody());
+		assertEquals(authorDto1, response.get(0).getAuthor());
 	}
 
 	@Test
 	@DisplayName("Search Text In Contact Or By Date")
 	void testSearchTextInContactOrByDate() {
-		fail("Not yet implemented");
+		
+        String text = "texto de example para o teste";
+        Date minDate = new Date();
+        Date maxDate = new Date();
+		try {
+			maxDate = sdf.parse(DATE1);
+			minDate = sdf.parse(DATE2);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		Date maxDateResult = new Date(maxDate.getTime() + 24 * 60 * 60 * 1000);
+
+        List<Contact> contacts = List.of(new Contact());
+        when(contactService.searchTextInContactOrByDate(text, minDate, maxDate)).thenReturn(contacts);
+
+        List<Contact> response = contactService.searchTextInContactOrByDate(text, minDate, maxDate);
+
+        assertEquals(contacts, response);
+        verify(contactRepository, times(1)).searchTextInContactByDate(text, minDate, maxDateResult);
 	}
 
 	@Test
-	@DisplayName("Find Page")
-	void testFindPage() {
-		fail("Not yet implemented");
+	@DisplayName("Retorna todos os contatos com paginação personalizada")
+	void whenFindAllContactsThenReturnPaginationWithAllContacts() {
+		
+		Integer page = 0;
+        Integer linesPerPage = 24;
+        String direction = "ASC";
+        String orderBy = "date";
+
+        contactList = Arrays.asList(contato1, contato2);
+        contactPage = new PageImpl<>(contactList);
+		when(contactRepository.findAll(any(Pageable.class))).thenReturn(contactPage);
+        
+		Page<Contact> response = contactService.findPage(page, linesPerPage, direction, orderBy);
+
+		verify(contactRepository, times(1)).findAll(any(Pageable.class));
+		assertEquals(contactPage, response);
+		assertEquals(contactList, response.getContent());
+        assertEquals(contactList.size(), response.getTotalElements());
+		assertEquals(2, contactPage.getSize());
+		assertEquals(0, contactPage.getNumber());
+		assertEquals(ID1, response.getContent().get(0).getId());
+		assertEquals(ID2, response.getContent().get(1).getId());
+		assertEquals(DATE1, sdf.format(response.getContent().get(0).getDate()));
+		assertEquals(DATE2, sdf.format(response.getContent().get(1).getDate()));
+		assertEquals(SUBJECT1, response.getContent().get(0).getSubject());
+		assertEquals(SUBJECT2, response.getContent().get(1).getSubject());
+		assertEquals(BODY1, response.getContent().get(0).getBody());
+		assertEquals(BODY2, response.getContent().get(1).getBody());
+		assertEquals(authorDto1, response.getContent().get(0).getAuthor());
+		assertEquals(authorDto2, response.getContent().get(1).getAuthor());
 	}
 
 	@Test
 	@DisplayName("FromDTO")
 	void testFromDTO() {
-		fail("Not yet implemented");
-	}
+		contactDto = new ContactDTO(contato1);
 
+        contactService.fromDTO(contactDto);
+
+        assertEquals(contactDto.getId(), contato1.getId());
+        assertEquals(contactDto.getSubject(), contato1.getSubject());
+        assertEquals(contactDto.getBody(), contato1.getBody());
+        assertEquals(contactDto.getAuthor(), contato1.getAuthor());
+	}
 }
